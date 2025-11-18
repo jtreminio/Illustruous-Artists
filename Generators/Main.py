@@ -76,11 +76,46 @@ html_template = """
             text-decoration: none;
             font-size: 18px;
         }
+        #copy-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease-in-out;
+        }
+        #copy-notification.visible {
+            opacity: 1;
+        }
     </style>
     <script>
+        let copyNotificationTimeoutId;
+
+        const showCopyNotification = () => {
+            const el = document.getElementById('copy-notification');
+            if (!el) return;
+
+            el.classList.add('visible');
+
+            if (copyNotificationTimeoutId) {
+                clearTimeout(copyNotificationTimeoutId);
+            }
+
+            copyNotificationTimeoutId = setTimeout(() => {
+                el.classList.remove('visible');
+            }, 1000);
+        };
+
         const copyToClipboard = (text) => {
-            text = text.replace('(', '\\(').replace(')', '\\)');
-            navigator.clipboard.writeText(`artist ${text}`);
+            navigator.clipboard
+                .writeText(`artist ${text}`)
+                .then(showCopyNotification)
+                .catch(showCopyNotification);
         };
     </script>
 </head>
@@ -96,6 +131,7 @@ html_template = """
             worst quality, low quality, text, censored, blurry, (watermark), artist signature, artist name
         </div>
     </div>
+    <div id="copy-notification">Copied!</div>
     <div class="image-container">
         {images}
     </div>
