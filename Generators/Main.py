@@ -1,10 +1,10 @@
 import os
 
 # Directories containing the images
-image_dir = os.path.join(os.path.dirname(__file__), 'Images')
+image_dir = os.path.join(os.path.dirname(__file__), "Images")
 
 # HTML template for the main page
-html_template = '''
+html_template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,26 +73,21 @@ html_template = '''
         }
     </style>
     <script>
-        function copyToClipboard(text) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert('Copied to clipboard: ' + text);
-        }
+        const copyToClipboard = (text) => {
+            text = text.replace('(', '\\(').replace(')', '\\)');
+            navigator.clipboard.writeText(`artist ${text}`);
+        };
     </script>
 </head>
 <body>
     <h1>Illustruous Artists</h1>
     <div class="prompt-container">
         <div class="prompt positive-prompt">
-            <strong>Positive Prompt:</strong> 
+            <strong>Positive Prompt:</strong>
             masterpiece, 4k, high quality, artist: Eigaka. 1girl, solo, Sakura, pink short hair, green eyes, forehead protector, blushing, looking at viewer, smiling, white dress, green background, gradient background
         </div>
         <div class="prompt negative-prompt">
-            <strong>Negative Prompt:</strong> 
+            <strong>Negative Prompt:</strong>
             worst quality, low quality, text, censored, blurry, (watermark), artist signature, artist name
         </div>
     </div>
@@ -103,14 +98,25 @@ html_template = '''
     </div>
 </body>
 </html>
-'''
+"""
 
 # Generate HTML for individual artist images
-image_html = ''
+image_html = ""
 for filename in os.listdir(image_dir):
-    if filename.endswith('.png') or filename.endswith('.jpg') or filename.endswith('.jpeg'):
+    if (
+        filename.endswith(".png")
+        or filename.endswith(".jpg")
+        or filename.endswith(".jpeg")
+    ):
         # Extract the artist name from the filename
-        artist_name = filename.replace('_00001_', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').replace('Artist-', '')
+        artist_name = (
+            filename.replace("_00001_", " ")
+            .replace(".png", "")
+            .replace(".jpg", "")
+            .replace(".jpeg", "")
+            .replace("Artist-", "")
+            .strip()
+        )
         image_html += f'''
         <div class="image-item">
             <img src="Images/{filename}" alt="{artist_name}" onclick="copyToClipboard('{artist_name}')">
@@ -121,11 +127,11 @@ for filename in os.listdir(image_dir):
         '''
 
 # Combine HTML template with images for main page
-final_html = html_template.replace('{images}', image_html)
+final_html = html_template.replace("{images}", image_html)
 
 # Save the HTML file for the main page
-output_path = os.path.join(os.path.dirname(__file__), 'index.html')
-with open(output_path, 'w') as file:
+output_path = os.path.join(os.path.dirname(__file__), "index.html")
+with open(output_path, "w") as file:
     file.write(final_html)
 
-print('index.html have been created')
+print("index.html have been created")

@@ -1,10 +1,10 @@
 import os
 
 # Directories containing the images
-classics_image_dir = os.path.join(os.path.dirname(__file__), 'ClassicArtists')
+classics_image_dir = os.path.join(os.path.dirname(__file__), "ClassicArtists")
 
 # HTML template for the ClassicArtists page
-classic_html_template = '''
+classic_html_template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,15 +54,10 @@ classic_html_template = '''
         }
     </style>
     <script>
-        function copyToClipboard(text) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert('Copied to clipboard: ' + text);
-        }
+        const copyToClipboard = (text) => {
+            text = text.replace('(', '\\(').replace(')', '\\)');
+            navigator.clipboard.writeText(`artist ${text}`);
+        };
     </script>
 </head>
 <body>
@@ -74,14 +69,25 @@ classic_html_template = '''
     </div>
 </body>
 </html>
-'''
+"""
 
 # Generate HTML for Classic Artists images
-classic_artist_html = ''
+classic_artist_html = ""
 for filename in os.listdir(classics_image_dir):
-    if filename.endswith('.png') or filename.endswith('.jpg') or filename.endswith('.jpeg'):
+    if (
+        filename.endswith(".png")
+        or filename.endswith(".jpg")
+        or filename.endswith(".jpeg")
+    ):
         # Extract the artist name from the filename
-        artist_name = filename.replace('_00001_', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').replace('Artist-', '')
+        artist_name = (
+            filename.replace("_00001_", " ")
+            .replace(".png", "")
+            .replace(".jpg", "")
+            .replace(".jpeg", "")
+            .replace("Artist-", "")
+            .strip()
+        )
         classic_artist_html += f'''
         <div class="image-item">
             <img src="ClassicArtists/{filename}" alt="{artist_name}" onclick="copyToClipboard('{artist_name}')">
@@ -92,11 +98,11 @@ for filename in os.listdir(classics_image_dir):
         '''
 
 # Combine HTML template with images for Classic Artists page
-final_classic_html = classic_html_template.replace('{images}', classic_artist_html)
+final_classic_html = classic_html_template.replace("{images}", classic_artist_html)
 
 # Save the HTML file for the Classic Artists page
-classic_output_path = os.path.join(os.path.dirname(__file__), 'classicArtists.html')
-with open(classic_output_path, 'w', encoding='utf-8') as file:
+classic_output_path = os.path.join(os.path.dirname(__file__), "classicArtists.html")
+with open(classic_output_path, "w", encoding="utf-8") as file:
     file.write(final_classic_html)
 
-print('classicArtists.html has been created')
+print("classicArtists.html has been created")

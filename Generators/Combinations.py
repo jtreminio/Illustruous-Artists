@@ -1,10 +1,10 @@
 import os
 
 # Directories containing the images
-combo_image_dir = os.path.join(os.path.dirname(__file__), 'CombinedArtists')
+combo_image_dir = os.path.join(os.path.dirname(__file__), "CombinedArtists")
 
 # HTML template for the combinations page
-combo_html_template = '''
+combo_html_template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -54,15 +54,10 @@ combo_html_template = '''
         }
     </style>
     <script>
-        function copyToClipboard(text) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            alert('Copied to clipboard: ' + text);
-        }
+        const copyToClipboard = (text) => {
+            text = text.replace('(', '\\(').replace(')', '\\)');
+            navigator.clipboard.writeText(`artist ${text}`);
+        };
     </script>
 </head>
 <body>
@@ -74,14 +69,25 @@ combo_html_template = '''
     </div>
 </body>
 </html>
-'''
+"""
 
 # Generate HTML for combination images
-combo_image_html = ''
+combo_image_html = ""
 for filename in os.listdir(combo_image_dir):
-    if filename.endswith('.png') or filename.endswith('.jpg') or filename.endswith('.jpeg'):
+    if (
+        filename.endswith(".png")
+        or filename.endswith(".jpg")
+        or filename.endswith(".jpeg")
+    ):
         # Extract the artist names from the filename
-        artist_names = filename.replace('_00001_', ' ').replace('.png', '').replace('.jpg', '').replace('.jpeg', '').replace('Artist-', '')
+        artist_names = (
+            filename.replace("_00001_", " ")
+            .replace(".png", "")
+            .replace(".jpg", "")
+            .replace(".jpeg", "")
+            .replace("Artist-", "")
+            .strip()
+        )
         combo_image_html += f'''
         <div class="image-item">
             <img src="CombinedArtists/{filename}" alt="{artist_names}" onclick="copyToClipboard('{artist_names}')">
@@ -92,11 +98,11 @@ for filename in os.listdir(combo_image_dir):
         '''
 
 # Combine HTML template with images for combinations page
-final_combo_html = combo_html_template.replace('{images}', combo_image_html)
+final_combo_html = combo_html_template.replace("{images}", combo_image_html)
 
 # Save the HTML file for the combinations page
-combo_output_path = os.path.join(os.path.dirname(__file__), 'combinations.html')
-with open(combo_output_path, 'w') as file:
+combo_output_path = os.path.join(os.path.dirname(__file__), "combinations.html")
+with open(combo_output_path, "w") as file:
     file.write(final_combo_html)
 
-print('combinations.html have been created')
+print("combinations.html have been created")
