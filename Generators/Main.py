@@ -1,7 +1,12 @@
 import os
 
-# Directories containing the images
-image_dir = os.path.join(os.path.dirname(__file__), "Images")
+# Paths relative to this script
+script_dir = os.path.dirname(__file__)
+project_root = os.path.dirname(script_dir)
+
+# Directory containing the images (at project root)
+image_dir = os.path.join(project_root, "Images")
+artists_txt_path = os.path.join(project_root, "artists.txt")
 
 # HTML template for the main page
 html_template = """
@@ -91,8 +96,6 @@ html_template = """
             worst quality, low quality, text, censored, blurry, (watermark), artist signature, artist name
         </div>
     </div>
-    <a class="nav-link" href="combinations.html">View Artist Combinations</a>
-    <a class="nav-link" href="classicArtists.html">View Classic Artist</a>
     <div class="image-container">
         {images}
     </div>
@@ -100,26 +103,29 @@ html_template = """
 </html>
 """
 
-# Generate HTML for individual artist images
+# Generate HTML for individual artist images, iterating by artists.txt order
 image_html = ""
-for filename in os.listdir(image_dir):
-    if (
-        filename.endswith(".png")
-        or filename.endswith(".jpg")
-        or filename.endswith(".jpeg")
-    ):
-        # Extract the artist name from the filename
-        artist_name = (
-            filename.replace("_00001_", " ")
-            .replace(".png", "")
-            .replace(".jpg", "")
-            .replace(".jpeg", "")
-            .replace("Artist-", "")
-            .strip()
-        )
+
+with open(artists_txt_path, encoding="utf-8") as artists_file:
+    for line in artists_file:
+        artist_name = line.strip()
+        if not artist_name:
+            continue
+
+        # Expected filename pattern based on artist name
+        filename = f"Artist-{artist_name}_00001_.png"
+        image_path = os.path.join(image_dir, filename)
+
+        if not os.path.exists(image_path):
+            # Skip artists that don't have a corresponding image file
+            continue
+
+        # Escape single quotes for inline JS string
+        js_artist_name = artist_name.replace("\\", "\\\\").replace("'", "\\'")
+
         image_html += f'''
         <div class="image-item">
-            <img src="Images/{filename}" alt="{artist_name}" onclick="copyToClipboard('{artist_name}')">
+            <img src="Images/{filename}" alt="{artist_name}" onclick="copyToClipboard('{js_artist_name}')">
             <div class="caption">
                 <span class="artist">Artist:</span> <span class="artist-name">{artist_name}</span>
             </div>
@@ -129,8 +135,8 @@ for filename in os.listdir(image_dir):
 # Combine HTML template with images for main page
 final_html = html_template.replace("{images}", image_html)
 
-# Save the HTML file for the main page
-output_path = os.path.join(os.path.dirname(__file__), "index.html")
+# Save the HTML file for the main page at project root
+output_path = os.path.join(project_root, "index.html")
 with open(output_path, "w") as file:
     file.write(final_html)
 
